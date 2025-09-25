@@ -11,12 +11,12 @@ def quantize(input_img: Image, gray_levels: int):
 
     output_img = Image.new(size=input_img.size, mode='L')
 
-    slope =  (gray_levels-1)/255
+    slope =  (gray_levels)/256
 
     for row in range(width):
         for col in range(height):
             input_pixel = input_img.getpixel((row, col))
-            output_pixel = round(slope*input_pixel) * 1/slope
+            output_pixel = int(slope*input_pixel) * 1/slope
             output_img.putpixel((row, col), int(output_pixel))
     
     return output_img
