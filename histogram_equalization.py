@@ -1,13 +1,15 @@
 from PIL import Image
-from IPython.display import display
 import numpy as np
 import matplotlib.pyplot as plt
 from image_sampling import resize
+import os
 
 boat = Image.open("Input_Images/boat.gif")
 f_16 = Image.open("Input_Images/f_16.gif")
 save_file_path = "Output_Images/Equalization/"
+gray_levels = 256
 
+#create and save test image
 test_img_pixels = np.array([[220, 220, 220, 220, 220], 
                             [200, 200, 200, 200, 200],
                             [190, 190, 190, 190, 190],
@@ -16,8 +18,8 @@ test_img_pixels = np.array([[220, 220, 220, 220, 220],
 test_img = Image.fromarray(test_img_pixels, 'L')
 test_img = resize(test_img, 256, 256)
 test_img.save("Input_Images/test_img.png")
+test_img = Image.open("Input_Images/test_img.png")
 
-gray_levels = 256
 
 def equalize(input_img: Image):
     output_img = Image.new(size=input_img.size, mode='L')
@@ -26,11 +28,10 @@ def equalize(input_img: Image):
 
     #create bar graph to represent histogram
     input_pdf = getPDF(input_frequencies, width, height)
-    # input_histogram = plt.bar(input_values, input_pdf)
 
     input_histogram, ax1 = plt.subplots()
     ax1.bar(input_values, input_pdf)
-    ax1.set_title("Input Histogram")
+    ax1.set_title(f"{os.path.splitext(os.path.basename(input_img.filename))[0].capitalize()} Input Histogram")
 
 
     #determine output value mapping
@@ -47,11 +48,9 @@ def equalize(input_img: Image):
     
     output_values, output_frequencies = get_histogram(output_img, width, height)
     output_pdf = getPDF(output_frequencies, width, height)
-    print(len(output_values), len(output_pdf), len(output_frequencies))
-    # output_histogram = plt.bar(output_values, output_pdf)
     output_histogram, ax2 = plt.subplots()
     ax2.bar(output_values, output_pdf)
-    ax2.set_title("Output Histogram")
+    ax2.set_title(f"{os.path.splitext(os.path.basename(input_img.filename))[0].capitalize()} Output Histogram")
 
     return (input_histogram, output_histogram, output_img)
 
