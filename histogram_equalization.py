@@ -20,17 +20,6 @@ test_img = resize(test_img, 256, 256)
 test_img.save("Input_Images/test_img.png")
 test_img = Image.open("Input_Images/test_img.png")
 
-def create_histogram(in_img, in_values, in_cdf, histogram_label):
-    input_histogram, ax1 = plt.subplots()
-    ax1.bar(in_values, in_cdf)
-    ax1.set_xlabel("Pixel Value")
-    ax1.set_ylabel("CDF")
-    input_file_name = os.path.basename(in_img.filename)
-    input_file_name = os.path.splitext(input_file_name)[0].capitalize()
-    ax1.set_title(f"{input_file_name} {histogram_label}")
-
-    return input_histogram
-
 def equalize(input_img: Image):
     output_img = Image.new(size=input_img.size, mode='L')
     width, height = input_img.size
@@ -43,10 +32,7 @@ def equalize(input_img: Image):
 
 
     #determine output value mapping
-    output_values = []
-    for i in range(width*height):
-        denorm_cum_pdf = round(sum(input_cdf[:i])*(gray_levels-1))
-        output_values.append(denorm_cum_pdf)
+    output_values = get_output_values(width, height, gray_levels, input_cdf)
 
     for row in range(width):
         for col in range(height):
@@ -83,7 +69,7 @@ def get_histogram(input_img: Image, width, height):
     input_pixel_frequency = list(input_hist_dict.values())
 
     return (input_pixel_value, input_pixel_frequency)
-    
+
 def getCDF(input_frequencies, width, height):
     pdf = []
     #calculate pdf
@@ -91,6 +77,25 @@ def getCDF(input_frequencies, width, height):
         pdf.append(frequency/(width*height))
 
     return pdf
+
+def create_histogram(in_img, in_values, in_cdf, histogram_label):
+    input_histogram, ax1 = plt.subplots()
+    ax1.bar(in_values, in_cdf)
+    ax1.set_xlabel("Pixel Value")
+    ax1.set_ylabel("CDF")
+    input_file_name = os.path.basename(in_img.filename)
+    input_file_name = os.path.splitext(input_file_name)[0].capitalize()
+    ax1.set_title(f"{input_file_name} {histogram_label}")
+
+    return input_histogram    
+
+def get_output_values(width, height, gray_levels, in_cdf):
+    output_values = []
+    for i in range(width*height):
+        denorm_cum_pdf = round(sum(in_cdf[:i])*(gray_levels-1))
+        output_values.append(denorm_cum_pdf)
+
+    return output_values
 
 test_input_hist, test_output_hist, equalized_test = equalize(test_img)
 equalized_test.save(f"{save_file_path}equalized_test.gif")
