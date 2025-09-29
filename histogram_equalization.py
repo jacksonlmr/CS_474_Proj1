@@ -20,24 +20,32 @@ test_img = resize(test_img, 256, 256)
 test_img.save("Input_Images/test_img.png")
 test_img = Image.open("Input_Images/test_img.png")
 
+def create_histogram(in_img, in_values, in_cdf, histogram_label):
+    input_histogram, ax1 = plt.subplots()
+    ax1.bar(in_values, in_cdf)
+    ax1.set_xlabel("Pixel Value")
+    ax1.set_ylabel("CDF")
+    input_file_name = os.path.basename(in_img.filename)
+    input_file_name = os.path.splitext(input_file_name)[0].capitalize()
+    ax1.set_title(f"{input_file_name} {histogram_label}")
+
+    return input_histogram
 
 def equalize(input_img: Image):
     output_img = Image.new(size=input_img.size, mode='L')
     width, height = input_img.size
+
+    #get input values, create pdf for input image
     input_values, input_frequencies = get_histogram(input_img, width, height)
+    input_cdf = getCDF(input_frequencies, width, height)
 
-    #create bar graph to represent histogram
-    input_pdf = getPDF(input_frequencies, width, height)
-
-    input_histogram, ax1 = plt.subplots()
-    ax1.bar(input_values, input_pdf)
-    ax1.set_title(f"{os.path.splitext(os.path.basename(input_img.filename))[0].capitalize()} Input Histogram")
+    input_histogram = create_histogram(input_img, input_values, input_cdf, "Input Histogram")
 
 
     #determine output value mapping
     output_values = []
     for i in range(width*height):
-        denorm_cum_pdf = round(sum(input_pdf[:i])*(gray_levels-1))
+        denorm_cum_pdf = round(sum(input_cdf[:i])*(gray_levels-1))
         output_values.append(denorm_cum_pdf)
 
     for row in range(width):
@@ -46,11 +54,11 @@ def equalize(input_img: Image):
             output_pixel = output_values[input_values.index(input_pixel)]
             output_img.putpixel((row, col), int(output_pixel))
     
+    #get input values, create pdf for output image
     output_values, output_frequencies = get_histogram(output_img, width, height)
-    output_pdf = getPDF(output_frequencies, width, height)
-    output_histogram, ax2 = plt.subplots()
-    ax2.bar(output_values, output_pdf)
-    ax2.set_title(f"{os.path.splitext(os.path.basename(input_img.filename))[0].capitalize()} Output Histogram")
+    output_cdf = getCDF(output_frequencies, width, height)
+
+    output_histogram = create_histogram(input_img, output_values, output_cdf, "Output Histogram")
 
     return (input_histogram, output_histogram, output_img)
 
@@ -76,7 +84,7 @@ def get_histogram(input_img: Image, width, height):
 
     return (input_pixel_value, input_pixel_frequency)
     
-def getPDF(input_frequencies, width, height):
+def getCDF(input_frequencies, width, height):
     pdf = []
     #calculate pdf
     for frequency in input_frequencies:
