@@ -1,8 +1,8 @@
 from PIL import Image
 from IPython.display import display
 
-lenna = Image.open("Input_Images/lenna.gif")
-peppers = Image.open("Input_Images/peppers.gif")
+lenna = Image.open("Input_Images/lenna.gif").convert('L')
+peppers = Image.open("Input_Images/peppers.gif").convert('L')
 save_file_path = "Output_Images/Sampling/"
 
 def subsample(input_img: Image, factor: int):

@@ -4,8 +4,14 @@ import matplotlib.pyplot as plt
 from image_sampling import resize
 import os
 
-boat = Image.open("Input_Images/boat.gif")
-f_16 = Image.open("Input_Images/f_16.gif")
+boat = Image.open("Input_Images/boat.gif").convert('L')
+boat.save("Input_Images/boat.pgm")
+boat = Image.open("Input_Images/boat.pgm")
+
+f_16 = Image.open("Input_Images/f_16.gif").convert('L')
+f_16.save("Input_Images/f_16.pgm")
+f_16 = Image.open("Input_Images/f_16.pgm")
+                  
 save_file_path = "Output_Images/Equalization/"
 gray_levels = 256
 
@@ -89,11 +95,11 @@ def create_histogram(in_img, in_values, in_cdf, histogram_label):
 
     return input_histogram    
 
-def get_output_values(width, height, gray_levels, in_cdf):
+def get_output_values(w, h, gray_levels, in_cdf):
     output_values = []
-    for i in range(width*height):
-        denorm_cum_pdf = round(sum(in_cdf[:i])*(gray_levels-1))
-        output_values.append(denorm_cum_pdf)
+    for i in range(w*h):
+        denorm_cum_cdf = round(sum(in_cdf[:i])*(gray_levels-1))
+        output_values.append(denorm_cum_cdf)
 
     return output_values
 

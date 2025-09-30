@@ -2,8 +2,8 @@ from PIL import Image
 from IPython.display import display
 from math import ceil
 
-lenna = Image.open("Input_Images/lenna.gif")
-peppers = Image.open("Input_Images/peppers.gif")
+lenna = Image.open("Input_Images/lenna.gif").convert('L')
+peppers = Image.open("Input_Images/peppers.gif").convert('L')
 save_file_path = "Output_Images/Quantization/"
 
 def quantize(input_img: Image, gray_levels: int):
